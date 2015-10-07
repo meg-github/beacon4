@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Foundation
 import CoreLocation
 
 
@@ -32,18 +31,26 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         if(status == CLAuthorizationStatus.NotDetermined) {
             self.manager.requestAlwaysAuthorization();
         }
+        
+        self.manager.startRangingBeaconsInRegion(self.region)
 
     }
 
     //ここから関数locationManagerの中身が続くよ．
+    func locationManager(manager: CLLocationManager!, didStartMonitoringForRegion region: CLRegion!) {
+        manager.requestStateForRegion(region)
+        self.beaconA.text = "Scanning..."
+    }
     
     func locationManager(manager: CLLocationManager!, didDetermineState state: CLRegionState, forRegion region: CLRegion!) {
         if(state == .Inside){
+            println("determinestate")
             manager.startRangingBeaconsInRegion(region as! CLBeaconRegion)
         }
     }
     
     func locationManager(manager: CLLocationManager!, monitoringDidFailForRegion region: CLRegion!, withError error: NSError!) {
+        println("test")
         println("monitoringDidFailForRegion \(error)")
         self.beaconA.text = "Error!"
     }
@@ -58,34 +65,37 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func locationManager(manager: CLLocationManager!, didExitRegion region: CLRegion!) {
+        println("exit")
         manager.stopRangingBeaconsInRegion(region as! CLBeaconRegion)
         reset()
     }
     
     func locationManager(manager: CLLocationManager!, didRangeBeacons beacons: [AnyObject]!, inRegion region: CLBeaconRegion!) {
-        println(beacons.count)
-        
-        if(beacons.count == 0) { return }
         var beacon = beacons[0] as! CLBeacon
-        
+        if(beacon.minor == 1){
+            self.beaconA.text = "Ant!"}
+            NSLog("A")
+        if(beacon.minor == 2){
+            self.beaconB.text = "Bear!"
+            NSLog("B")
+        }
+        if(beacon.minor == 3){
+            self.beaconC.text = "Cat!"
+            NSLog("C")
+        }
+        if(beacon.minor == 4){
+            self.beaconD.text = "Dog!"
+            NSLog("D")
+        }
         if (beacon.proximity == CLProximity.Unknown) {
-            self.beaconA.text = "Unknown Proximity"
+            println("Unknown Proximity")
             reset()
         }
-        
-        if(beacon.minor == 1){
-            self.beaconA.text = "A"}
-        if(beacon.minor == 2){
-            self.beaconB.text = "B"}
-        if(beacon.minor == 3){
-            self.beaconC.text = "C"}
-        if(beacon.minor == 4){
-            self.beaconD.text = "D"}
-
     }
     
 
     //ここまでlocationManagerの中身だよ
+    
     func reset(){
         self.beaconA.text = "none"
         self.beaconB.text = "none"
